@@ -16,11 +16,11 @@ const proxy = httpProxy.createProxyServer({
 });
 
 proxy.on("proxyReq", (proxyReq, req) => {
-  log(`→  ${req.method} ${req.url}  →  ${TARGET}${req.url}`);
+  log(`-> ${req.method} ${req.url} -> ${TARGET}${req.url}`);
 });
 
 proxy.on("proxyRes", (proxyRes, req) => {
-  log(`←  ${proxyRes.statusCode} ${req.method} ${req.url}`);
+  log(`<- ${proxyRes.statusCode} ${req.method} ${req.url}`);
 });
 
 proxy.on("error", (err, req, res) => {
@@ -37,11 +37,19 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  log(`HTTP proxy listening on http://0.0.0.0:${PORT}`);
-  log(`Default upstream target: ${TARGET}`);
+  log("HTTP proxy listening on http://0.0.0.0:" + PORT);
+  log("Default upstream target: " + TARGET);
 });
 
 const shutdown = (signal) => {
-  log(`Received ${signal}, shutting down…`);
+  log("Received " + signal + ", shutting down...");
   server.close(() => {
     log("Server closed.");
+    process.exit(0);
+  });
+};
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+
+module.exports = server;
